@@ -1,0 +1,37 @@
+name: CI/CD to Azure Web App
+
+on:
+  push:
+    branches:
+      - main # Il workflow si attiva quando viene eseguito un push su "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Esegue il workflow su un runner Linux cioè una macchina virtuale che esegue i job
+
+    steps:
+     - name: Chekout repository
+       uses: actions/checkout@v3 # Clona il repository Github
+
+     - name : Login to Docker Hub
+       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ SECRETS.DOCKER_USERNAME }}" --password-stdin # --password-stdin permette di passare la password tramite
+
+     - name: Build and Push Docker Hub
+       run: | # Esegue i comandi shell | permette di scrivere più comandi su più righe
+       docker build -t ${{ secrets.DOCKER_USERNAME }}/38_provewebappd . # Crea l'immagine Docker
+       docker tag ${{ secrets.DOCKER_USERNAME }}//38_provewebappd ${{ secrets.DOCKER_USERNAME }}//38_provewebappd:latest # Crea un  tag per l'immagine Docker
+       docker push ${{ secrets.DOCKER_USERNAME }}//38_provewebappd:latest # Pusha l'immagine Docker Hub
+
+deploy:
+  runs-on: ubuntu-latest # Esegue il workflow su un runner Linux cioè una macchina virtuale che esegue i job
+  needs: build # Il deploy inizia solo dopo che il job "build" è completato
+
+  steps:
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2 # Usa l'azione di Azure per il deploy su Azure Web App
+      with:
+        app-name: '38_provewebappd' # Nome dell'App service
+        publish-profile: ${{ secrets.Azure_WEBAPP_PUBLISH_PROFILE }} # il file XML con le credenziali
+        images: ${{ secrets.DOCKER_USERNAME }}/38_provewebappd:latest # L'immagine Docker da deployare
+
+       
