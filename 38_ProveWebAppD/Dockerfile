@@ -1,5 +1,9 @@
-# Usa l'immagine ufficiale di Nginx
-FROM nginx:latest
+# Usa l'immagine ufficiale di Nginx / --> (registry)
+FROM nginx:latest 
+
+
+# Copia il file di configurazione personalizzato di nginx
+# Copy ngix.conf /etc/ngnix.conf
 
 # Copia i file HTML nella cartella di Nginx
 COPY index.html /usr/share/nginx/html/index.html
@@ -9,6 +13,6 @@ COPY index.html /usr/share/nginx/html/index.html
 EXPOSE 80 
 
 
-# Avvia Ngnx
+# Avvia Nginx
 # -g deamon off;" serve a far partire Ngnx in primo piano
-CMD ["nginx", "-g" , "deamon off;"]  
+CMD ["nginx", "-g" , "daemon off;"]  
